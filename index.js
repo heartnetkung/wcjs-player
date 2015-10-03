@@ -21,7 +21,7 @@
 var vlcs = {},
     opts = {},
     players = {},
-    $ = require('jquery'),
+    $ = window.jQuery || require('jquery'),
     seekDrag = false,
     volDrag = false,
     firstTime = true,
