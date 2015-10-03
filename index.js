@@ -356,6 +356,8 @@ wjs.prototype.addPlayer = function(wcpSettings) {
                 }
     
                 wjsPlayer.find(".wcp-toolbar").stop().show(0);
+                $(window.document).trigger('player-toolbar-show');
+                
                 if (!volDrag && !seekDrag) {
                     if ($(wjsPlayer.find(".wcp-toolbar").selector + ":hover").length > 0) {
                         vlcs[wjsPlayer.context].hideUI = setTimeout(function(i) { return function() { hideUI.call(players[i]); } }(wjsPlayer.context),3000);
@@ -1485,6 +1487,7 @@ function hideUI() {
         this.find(".wcp-toolbar").stop().fadeOut();
         this.find(".wcp-tooltip").stop().fadeOut();
         this.wrapper.css({cursor: 'none'});
+        $(window.document).trigger('player-toolbar-hide');
     }
 }
 
