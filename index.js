@@ -332,15 +332,6 @@ wjs.prototype.addPlayer = function(wcpSettings) {
         if ([5].indexOf(wjsPlayer.vlc.state) > -1 && !wjsPlayer.playing() && wjsPlayer.itemCount() > 0) wjsPlayer.play().animatePause();
     });
     
-    wjs(newid).wrapper.find(".wcp-surface").dblclick(function() {
-        wjsPlayer = getContext(this);
-        if (opts[wjsPlayer.context].allowFullscreen) {
-            wjsPlayer.find(".wcp-anim-basic").finish();
-            wjsPlayer.find(".wcp-pause-anim").finish();
-            wjsPlayer.toggleFullscreen();
-        }
-    });
-    
     wjs(newid).wrapper.parent().bind("mousemove",function(e) {
         wjsPlayer = getContext(this);
         if (opts[wjsPlayer.context].uiHidden === false) {
