@@ -1250,6 +1250,8 @@ function fullscreenOff() {
 
 // player event handlers
 function timePassed(t) {
+    if (window.timePassedHack)
+        window.timePassedHack(t);
     if (t > 0) this.find(".wcp-time-current").text(parseTime(t,this.vlc.length));
     else if (this.find(".wcp-time-current").text() != "" && this.find(".wcp-time-total").text() == "") this.find(".wcp-time-current").text("");
     
