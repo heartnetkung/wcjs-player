@@ -1197,8 +1197,8 @@ wjs.prototype.animatePause = function() {
     this.find(".wcp-anim-basic").css("fontSize", "50px");
     this.find(".wcp-anim-basic").css("padding", "7px 27px");
     this.find(".wcp-anim-basic").css("borderRadius", "12px");
-    this.find(".wcp-pause-anim").fadeIn(200).fadeOut(200);
-    this.find(".wcp-anim-basic").animate({ fontSize: "80px", padding: "7px 30px" },400);
+    this.find(".wcp-pause-anim").stop(true).fadeIn(200).fadeOut(200);
+    this.find(".wcp-anim-basic").stop(true).animate({ fontSize: "80px", padding: "7px 30px" },400);
 }
 
 function fullscreenOn() {
