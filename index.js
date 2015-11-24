@@ -63,7 +63,7 @@ window.onbeforeunload = function(e) {
 
 function wjs(context) {
     
-    this.version = "v0.5.2";
+    this.version = "v0.5.4";
 
     // Save the context
     this.context = (typeof context === "undefined") ? "#webchimera" : context;  // if no playerid set, default to "webchimera"
@@ -1476,8 +1476,6 @@ function calcFontSize(wjsPlayer) {
     } else fontSize = 20;
     return fontSize;
 }
-function toSeconds(t){s = 0.0;if(t){p=t.split(':');for(i=0;i<p.length;i++)s=s*60+parseFloat(p[i].replace(',', '.'))};return s}
-function strip(s){return s.replace(/^\s+|\s+$/g,"")}
 function gcd(a,b){if(b>a){temp=a;a=b;b=temp}while(b!=0){m=a%b;a=b;b=m;}return a}
 function sel(context){return $($(this).parents(".wcp-wrapper")[0]).find(context)}
 function switchClass(el,fclass,sclass){if(el.hasClass(fclass))el.removeClass(fclass).addClass(sclass)}
