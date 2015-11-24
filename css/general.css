@@ -11,63 +11,6 @@
 	src: url('../fonts/sourcesanspro.ttf');
 }
 
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/cyrillic-ext.woff2') format('woff2');
-  unicode-range: U+0460-052F, U+20B4, U+2DE0-2DFF, U+A640-A69F;
-}
-/* cyrillic */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/cyrillic.woff2') format('woff2');
-  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-/* greek-ext */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/greek-ext.woff2') format('woff2');
-  unicode-range: U+1F00-1FFF;
-}
-/* greek */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/greek.woff2') format('woff2');
-  unicode-range: U+0370-03FF;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/vietnamese.woff2') format('woff2');
-  unicode-range: U+0102-0103, U+1EA0-1EF1, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Roboto Medium'), local('Roboto-Medium'), url('../fonts/roboto/latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
-}
-
 .wcp-canvas { z-index: 1 }
 
 .wcp-menu {
@@ -168,11 +111,6 @@
 .wcp-playlist-item:hover .wcp-disabler-dot { background: #696969 }
 
 .wcp-playlist-item:hover .wcp-disabler-img { opacity: 1 }
-
-.wcp-subtitles-item {
-	width: calc(100% - 14px);
-	padding-left: 14px;
-}
 
 .sortable-dragging {
 	cursor: -webkit-grabbing !important;
@@ -406,10 +344,6 @@
 .wcp-playlist-but { display: none }
 .wcp-playlist-but:before { content: "\E833"; font-size: 26px }
 
-/* Subtitle Button */
-/* .wcp-subtitle-but { display: none } */
-.wcp-subtitle-but:before { content: "\E83A"; font-size: 23px }
-
 /* Fullscreen Button Icons */
 .wcp-minimize:before { content: "\E805"; font-size: 24px }
 .wcp-maximize:before { content: "\E804"; font-size: 24px }
@@ -458,20 +392,6 @@
 	color: #fff;
 	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 	text-align: right
-}
-
-/* Subtitle Text */
-.wcp-subtitle-text {
-	font-family: 'Roboto';
-	position: absolute;
-	bottom: 40px;
-	left: 0;
-	width: 100%;
-	font-size: 20px;
-	z-index: 2;
-	color: #fff;
-	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-	text-align: center
 }
 
 .wcp-tooltip {
