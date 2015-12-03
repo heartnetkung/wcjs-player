@@ -19,8 +19,7 @@
     },
     "dependencies": {
         "wcjs-renderer": "heartnetkung/wcjs-renderer",
-        "jquery": "*",
-        "jquery-ui": "jaruba/jquery-ui",
+        "jquery-ui": "heartnetkung/jquery-ui",
         "computer-sleep" : "jaruba/computer-sleep"
     }
 }
