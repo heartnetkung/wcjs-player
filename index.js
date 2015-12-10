@@ -151,6 +151,7 @@ wjs.prototype.playItem = function(i) {
             if (wjsButton.length != 0) wjsButton.removeClass("wcp-replay").addClass("wcp-pause");
     
             this.vlc.playlist.playItem(i);
+            this.vlc.time=this.cropTimeStart;
     
             positionChanged.call(this,0);
             this.find(".wcp-time-current").text("");
@@ -497,7 +498,7 @@ wjs.prototype.addPlayer = function(wcpSettings) {
             wjsPlayer = players[i];
             if (length > 0) {
                 if (wjsPlayer.find(".wcp-time-current").text() == "") wjsPlayer.find(".wcp-time-current").text("00:00");
-                wjsPlayer.find(".wcp-time-total").text(" / "+parseTime(length));
+                wjsPlayer.find(".wcp-time-total").text(" / "+parseTime(wjsPlayer, length));
             } else wjsPlayer.find(".wcp-time-total").text("");
         }
     }(newid);
@@ -557,6 +558,9 @@ wjs.prototype.addPlayer = function(wcpSettings) {
     vlcs[newid].vlc.playlist.mode = vlcs[newid].vlc.playlist.Single;
     
     players[newid] = new wjs(newid);
+
+    players[newid].cropTimeStart = wcpSettings.cropTimeStart || 0;
+    players[newid].cropTimeEnd = wcpSettings.cropTimeEnd || 99999999;
 
     return players[newid];
 }
@@ -622,7 +626,9 @@ wjs.prototype.addPlaylist = function(playlist) {
      }
 
      if (this.state() == "idle") {
-        if (opts[this.context].autoplay || opts[this.context].autostart) this.playItem(0);
+        if (opts[this.context].autoplay || opts[this.context].autostart){
+            this.playItem(0);
+        }
         if ((opts[this.context].mute || opts[this.context].multiscreen) && !this.mute()) this.mute(true);
      }
     
@@ -717,7 +723,7 @@ wjs.prototype.volume = function(newVolume) {
 wjs.prototype.time = function(newTime) {
     if (typeof newTime === 'number') {
         this.vlc.time = newTime;
-        this.find(".wcp-time-current").text(parseTime(newTime,this.vlc.length));
+        this.find(".wcp-time-current").text(parseTime(this,newTime,this.vlc.length));
         this.find(".wcp-progress-seen")[0].style.width = (newTime/(this.vlc.length)*100)+"%";
     } else return this.vlc.time;
     return this;
@@ -726,7 +732,7 @@ wjs.prototype.time = function(newTime) {
 wjs.prototype.position = function(newPosition) {
     if (typeof newPosition === 'number') {
         this.vlc.position = newPosition;
-        this.find(".wcp-time-current").text(parseTime(this.vlc.length*newPosition,this.vlc.length));
+        this.find(".wcp-time-current").text(parseTime(this,this.vlc.length*newPosition,this.vlc.length,'noTransform'));
         this.find(".wcp-progress-seen")[0].style.width = (newPosition*100)+"%";
     } else return this.vlc.position;
     return this;
@@ -859,9 +865,9 @@ function progressHoverIn(e) {
     if (this.vlc.length) {
         var rect = this.wrapper[0].getBoundingClientRect();
         if (e.pageX >= rect.left && e.pageX <= rect.right) {
-            var newtime = Math.floor(this.vlc.length * ((e.pageX - rect.left) / this.wrapper.width()));
+            var newtime = Math.floor( transformLength(this,this.vlc.length) * ((e.pageX - rect.left) / this.wrapper.width()));
             if (newtime > 0) {
-                this.find(".wcp-tooltip-inner").text(parseTime(newtime));
+                this.find(".wcp-tooltip-inner").text(parseTime(this,newtime,'noTransform'));
                 var offset = Math.floor(this.find(".wcp-tooltip").width() / 2);
                 if (e.pageX >= (offset + rect.left) && e.pageX <= (rect.right - offset)) {
                     this.find(".wcp-tooltip").css("left",((e.pageX - rect.left) - offset)+"px");
@@ -877,9 +883,9 @@ function progressMouseMoved(e) {
     if (this.vlc.length) {
         var rect = this.wrapper[0].getBoundingClientRect();
         if (e.pageX >= rect.left && e.pageX <= rect.right) {
-            var newtime = Math.floor(this.vlc.length * ((e.pageX - rect.left) / this.wrapper.width()));
+            var newtime = Math.floor(transformLength(this,this.vlc.length) * ((e.pageX - rect.left) / this.wrapper.width()));
             if (newtime > 0) {
-                this.find(".wcp-tooltip-inner").text(parseTime(newtime));
+                this.find(".wcp-tooltip-inner").text(parseTime(this,newtime,'noTransform'));
                 var offset = Math.floor(this.find(".wcp-tooltip").width() / 2);
                 if (e.pageX >= (offset + rect.left) && e.pageX <= (rect.right - offset)) {
                     this.find(".wcp-tooltip").css("left",((e.pageX - rect.left) - offset)+"px");
@@ -906,8 +912,9 @@ function seekDragEnded(e,wjsMulti) {
     if (wjsLogic) {
         p = (e.pageX - rect.left) / (rect.right - rect.left);
         this.find(".wcp-progress-seen").css("width", (p*100)+"%");
-        this.vlc.position = p;
+        this.vlc.time = this.cropTimeStart+ (p*transformLength(this,this.vlc.length));
         this.find(".wcp-time-current").text(this.find(".wcp-tooltip-inner").text());
+        this.play();
     }
 
 }
@@ -968,9 +975,9 @@ function seekDragMoved(e,wjsMulti) {
         p = (e.pageX - rect.left) / (rect.right - rect.left);
         this.find(".wcp-progress-seen").css("width", (p*100)+"%");
         vlc = this.vlc;
-        var newtime = Math.floor(vlc.length * ((e.pageX - rect.left) / this.wrapper.width()));
+        var newtime = Math.floor(transformLength(this,this.vlc.length) * ((e.pageX - rect.left) / this.wrapper.width()));
         if (newtime > 0) {
-            this.find(".wcp-tooltip-inner").text(parseTime(newtime));
+            this.find(".wcp-tooltip-inner").text(parseTime(this,newtime,'noTransform'));
             var offset = Math.floor(this.find(".wcp-tooltip").width() / 2);
             if (e.pageX >= (offset + rect.left) && e.pageX <= (rect.right - offset)) {
                 this.find(".wcp-tooltip").css("left",((e.pageX - rect.left) - offset)+"px");
@@ -1145,12 +1152,18 @@ function fullscreenOff() {
 function timePassed(t) {
     if (window.timePassedHack)
         window.timePassedHack(t);
-    if (t > 0) this.find(".wcp-time-current").text(parseTime(t,this.vlc.length));
+    if(t>=this.cropTimeEnd)
+        this.pause();
+    if (t > 0) {
+        this.find(".wcp-time-current").text(parseTime(this,t,this.vlc.length));
+        var position = transformCurrentTime(this,t)/transformLength(this,this.vlc.length);
+        this.find(".wcp-progress-seen")[0].style.width = (position*100)+"%";
+    }
     else if (this.find(".wcp-time-current").text() != "" && this.find(".wcp-time-total").text() == "") this.find(".wcp-time-current").text("");
 }
 function positionChanged(position) {
     opts[this.context].lastPos = position;
-    if (!seekDrag) this.find(".wcp-progress-seen")[0].style.width = (position*100)+"%";
+    if (!seekDrag && (position ===0)) this.find(".wcp-progress-seen")[0].style.width = (position*100)+"%";
 }
 
 function isOpening() {
@@ -1453,13 +1466,29 @@ function getContext(el) {
     else if ($(el).hasClass("wcp-wrapper")) return players["#"+el.id];
     else return players["#"+$(el).parents(".wcp-wrapper")[0].id];
 }
-function parseTime(t,total) {
-    if (typeof total === 'undefined') total = t;
+function parseTime(wjs,t,total) {
+    if (typeof total === 'undefined'){
+        t=transformLength(wjs,t); 
+        total = t;
+    }else if(total==='noTransform'){ 
+        total=t; 
+    }else{
+        t=transformCurrentTime(wjs,t);
+        total=transformLength(wjs,total);
+    } 
     tempHour = ("0" + Math.floor(t / 3600000)).slice(-2);
     tempMinute = ("0" + (Math.floor(t / 60000) %60)).slice(-2);
     tempSecond = ("0" + (Math.floor(t / 1000) %60)).slice(-2);
     if (total >= 3600000) return tempHour+":"+tempMinute+":"+tempSecond;
     else return tempMinute+":"+tempSecond;
+}
+function transformLength(wjs, length){
+    return Math.min(length, wjs.cropTimeEnd-wjs.cropTimeStart);
+}
+function transformCurrentTime(wjs, time){
+    var ans = time - wjs.cropTimeStart;
+    var length = transformLength(wjs, wjs.vlc.length);
+    return Math.max(Math.min(ans, length), 0);
 }
 function nl2br(str,is_xhtml) {
     breakTag=(is_xhtml||typeof is_xhtml==='undefined')?'<br />':'<br>';return (str+'').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g,'$1'+breakTag+'$2');
