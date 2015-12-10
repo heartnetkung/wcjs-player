@@ -1152,8 +1152,10 @@ function fullscreenOff() {
 function timePassed(t) {
     if (window.timePassedHack)
         window.timePassedHack(t);
-    if(t>=this.cropTimeEnd)
+    if(t >= this.cropTimeEnd){
         this.pause();
+        this.vlc.events.emit('cropTimeEnded');
+    }
     if (t > 0) {
         this.find(".wcp-time-current").text(parseTime(this,t,this.vlc.length));
         var position = transformCurrentTime(this,t)/transformLength(this,this.vlc.length);
@@ -1533,4 +1535,5 @@ wjs.prototype.onStateInt=function(wjsFunction){vlcs[this.context].events.on('Sta
 wjs.prototype.onTime=function(wjsFunction){this.catchEvent("TimeChanged",wjsFunction);return this}
 wjs.prototype.onPosition=function(wjsFunction){this.catchEvent("PositionChanged",wjsFunction);return this}
 wjs.prototype.onFrameSetup=function(wjsFunction){vlcs[this.context].events.on('FrameSetup',wjsFunction);return this}
+wjs.prototype.onCropTimeEnded=function(wjsFunction){this.catchEvent('cropTimeEnded',wjsFunction);return this}
 module.exports = wjs;
