@@ -105,7 +105,7 @@ wjs.prototype.togglePause = function() {
 }
 
 wjs.prototype.play = function(mrl) {
-    if (!this.playing()) {
+    if (!this.playing() && (this.vlc.time<this.cropTimeEnd)) {
         switchClass(this.find(".wcp-anim-basic"),"wcp-anim-icon-pause","wcp-anim-icon-play");
 
         wjsButton = this.find(".wcp-play");
