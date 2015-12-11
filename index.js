@@ -151,7 +151,6 @@ wjs.prototype.playItem = function(i) {
             if (wjsButton.length != 0) wjsButton.removeClass("wcp-replay").addClass("wcp-pause");
     
             this.vlc.playlist.playItem(i);
-            this.vlc.time= Math.max(Math.min(this.startTime, this.cropTimeEnd), this.cropTimeStart);
     
             positionChanged.call(this,0);
             this.find(".wcp-time-current").text("");
@@ -561,7 +560,6 @@ wjs.prototype.addPlayer = function(wcpSettings) {
 
     result.cropTimeStart = wcpSettings.cropTimeStart || 0;
     result.cropTimeEnd = wcpSettings.cropTimeEnd || 99999999;
-    result.startTime = wcpSettings.startTime || 0;
 
     result.vlc.events.once('TimeChanged',function(){
         result.volume(result.volume());
