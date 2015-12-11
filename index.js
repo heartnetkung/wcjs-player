@@ -557,13 +557,17 @@ wjs.prototype.addPlayer = function(wcpSettings) {
     // set playlist mode to single playback, the player has it's own playlist mode feature
     vlcs[newid].vlc.playlist.mode = vlcs[newid].vlc.playlist.Single;
     
-    players[newid] = new wjs(newid);
+    var result = players[newid] = new wjs(newid);
 
-    players[newid].cropTimeStart = wcpSettings.cropTimeStart || 0;
-    players[newid].cropTimeEnd = wcpSettings.cropTimeEnd || 99999999;
-    players[newid].startTime = wcpSettings.startTime || 0;
+    result.cropTimeStart = wcpSettings.cropTimeStart || 0;
+    result.cropTimeEnd = wcpSettings.cropTimeEnd || 99999999;
+    result.startTime = wcpSettings.startTime || 0;
 
-    return players[newid];
+    result.vlc.events.once('TimeChanged',function(){
+        result.volume(result.volume());
+    });
+
+    return result;
 }
 
 wjs.prototype.addPlaylist = function(playlist) {
