@@ -122,6 +122,8 @@ wjs.prototype.play = function(mrl) {
 
 wjs.prototype.pause = function() {
     if (this.playing()) {
+        if(typeof window.pauseHack === 'function')
+            window.pauseHack();
         switchClass(this.find(".wcp-anim-basic"),"wcp-anim-icon-play","wcp-anim-icon-pause");
         this.find(".wcp-pause").removeClass("wcp-pause").addClass("wcp-play");
         this.vlc.playlist.pause();
@@ -161,6 +163,9 @@ wjs.prototype.playItem = function(i) {
 }
 
 wjs.prototype.stop = function() {
+    if(typeof window.stopHack === 'function')
+        window.stopHack();
+
     wjsButton = this.find(".wcp-pause");
     if (wjsButton.length != 0) wjsButton.removeClass("wcp-pause").addClass("wcp-play");
 
@@ -725,6 +730,9 @@ wjs.prototype.volume = function(newVolume) {
 
 wjs.prototype.time = function(newTime) {
     if (typeof newTime === 'number') {
+        if (typeof window.timeJumpHack === 'function')
+            window.timeJumpHack(t);
+
         this.vlc.time = newTime;
         this.find(".wcp-time-current").text(parseTime(this,newTime,this.vlc.length));
         this.find(".wcp-progress-seen")[0].style.width = (newTime/(this.vlc.length)*100)+"%";
@@ -1153,7 +1161,7 @@ function fullscreenOff() {
 
 // player event handlers
 function timePassed(t) {
-    if (window.timePassedHack)
+    if (typeof window.timePassedHack === 'function')
         window.timePassedHack(t);
     if(t >= this.cropTimeEnd){
         this.pause();
