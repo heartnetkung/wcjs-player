@@ -731,7 +731,7 @@ wjs.prototype.volume = function(newVolume) {
 wjs.prototype.time = function(newTime) {
     if (typeof newTime === 'number') {
         if (typeof window.timeJumpHack === 'function')
-            window.timeJumpHack(t);
+            window.timeJumpHack(newTime);
 
         this.vlc.time = newTime;
         this.find(".wcp-time-current").text(parseTime(this,newTime,this.vlc.length));
@@ -923,8 +923,11 @@ function seekDragEnded(e,wjsMulti) {
     if (wjsLogic) {
         p = (e.pageX - rect.left) / (rect.right - rect.left);
         this.find(".wcp-progress-seen").css("width", (p*100)+"%");
-        this.vlc.time = this.cropTimeStart+ (p*transformLength(this,this.vlc.length));
+        var actualTime = this.cropTimeStart+ (p*transformLength(this,this.vlc.length));
+        this.vlc.time = actualTime;
         this.find(".wcp-time-current").text(this.find(".wcp-tooltip-inner").text());
+        if (typeof window.timeJumpHack === 'function')
+            window.timeJumpHack(actualTime);
         this.play();
     }
 
