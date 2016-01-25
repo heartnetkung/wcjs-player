@@ -925,10 +925,10 @@ function seekDragEnded(e,wjsMulti) {
         p = (e.pageX - rect.left) / (rect.right - rect.left);
         this.find(".wcp-progress-seen").css("width", (p*100)+"%");
         var actualTime = this.cropTimeStart()+ (p*transformLength(this,this.vlc.length));
+        if (typeof window.timeJumpHack === 'function')
+            actualTime = window.timeJumpHack(actualTime);
         this.vlc.time = actualTime;
         this.find(".wcp-time-current").text(this.find(".wcp-tooltip-inner").text());
-        if (typeof window.timeJumpHack === 'function')
-            window.timeJumpHack(actualTime);
         this.play();
     }
 
