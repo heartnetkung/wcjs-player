@@ -105,7 +105,7 @@ wjs.prototype.togglePause = function() {
 }
 
 wjs.prototype.play = function(mrl) {
-    if (!this.playing() && (this.vlc.time<this.cropTimeEnd)) {
+    if (!this.playing() && (this.vlc.time<this.cropTimeEnd())) {
         switchClass(this.find(".wcp-anim-basic"),"wcp-anim-icon-pause","wcp-anim-icon-play");
 
         wjsButton = this.find(".wcp-play");
@@ -563,8 +563,8 @@ wjs.prototype.addPlayer = function(wcpSettings) {
     
     var result = players[newid] = new wjs(newid);
 
-    result.cropTimeStart = wcpSettings.cropTimeStart || 0;
-    result.cropTimeEnd = wcpSettings.cropTimeEnd || 99999999;
+    result.cropTimeStart = wcpSettings.cropTimeStart || function(){return 0};
+    result.cropTimeEnd = wcpSettings.cropTimeEnd || function(){return 99999999};
 
     result.vlc.events.once('TimeChanged',function(){
         result.volume(result.volume());
@@ -731,11 +731,12 @@ wjs.prototype.volume = function(newVolume) {
 wjs.prototype.time = function(newTime) {
     if (typeof newTime === 'number') {
         if (typeof window.timeJumpHack === 'function')
-            window.timeJumpHack(newTime);
+            newTime = window.timeJumpHack(newTime);
 
         this.vlc.time = newTime;
         this.find(".wcp-time-current").text(parseTime(this,newTime,this.vlc.length));
         this.find(".wcp-progress-seen")[0].style.width = (newTime/(this.vlc.length)*100)+"%";
+        this.play();
     } else return this.vlc.time;
     return this;
 }
@@ -923,7 +924,7 @@ function seekDragEnded(e,wjsMulti) {
     if (wjsLogic) {
         p = (e.pageX - rect.left) / (rect.right - rect.left);
         this.find(".wcp-progress-seen").css("width", (p*100)+"%");
-        var actualTime = this.cropTimeStart+ (p*transformLength(this,this.vlc.length));
+        var actualTime = this.cropTimeStart()+ (p*transformLength(this,this.vlc.length));
         this.vlc.time = actualTime;
         this.find(".wcp-time-current").text(this.find(".wcp-tooltip-inner").text());
         if (typeof window.timeJumpHack === 'function')
@@ -1166,7 +1167,7 @@ function fullscreenOff() {
 function timePassed(t) {
     if (typeof window.timePassedHack === 'function')
         window.timePassedHack(t);
-    if(t >= this.cropTimeEnd){
+    if(t >= this.cropTimeEnd()){
         this.pause();
         this.vlc.events.emit('cropTimeEnded');
     }
@@ -1499,10 +1500,10 @@ function parseTime(wjs,t,total) {
     else return tempMinute+":"+tempSecond;
 }
 function transformLength(wjs, length){
-    return Math.min(length, wjs.cropTimeEnd-wjs.cropTimeStart);
+    return Math.min(length, wjs.cropTimeEnd()-wjs.cropTimeStart());
 }
 function transformCurrentTime(wjs, time){
-    var ans = time - wjs.cropTimeStart;
+    var ans = time - wjs.cropTimeStart();
     var length = transformLength(wjs, wjs.vlc.length);
     return Math.max(Math.min(ans, length), 0);
 }
