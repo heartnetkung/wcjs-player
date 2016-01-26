@@ -250,7 +250,7 @@ wjs.prototype.addPlayer = function(wcpSettings) {
     opts[newid].zoom = 1;
     if (typeof opts[newid].allowFullscreen === 'undefined') opts[newid].allowFullscreen = true;
 
-    playerbody = '<div' + targetid + ' style="height: 100%"><div class="wcp-center" style="overflow: hidden"><canvas class="wcp-canvas wcp-center"></canvas></div><div class="wcp-surface"></div><div class="wcp-menu wcp-playlist wcp-center"><div class="wcp-menu-close"></div><div class="wcp-menu-title">Playlist Menu</div><ul class="wcp-menu-items wcp-playlist-items"></ul></div><div class="wcp-pause-anim wcp-center"><i class="wcp-anim-basic wcp-anim-icon-play"></i></div><div class="wcp-titlebar"><span class="wcp-title"></span></div><div class="wcp-toolbar"><div></div><div class="wcp-progress-bar"><div class="wcp-progress-seen"></div><div class="wcp-progress-pointer"></div></div><div class="wcp-button wcp-left wcp-prev" style="display: none"></div><div class="wcp-button wcp-left wcp-pause"></div><div class="wcp-button wcp-left wcp-next" style="display: none"></div><div class="wcp-button wcp-left wcp-vol-button wcp-volume-medium"></div><div class="wcp-vol-control"><div class="wcp-vol-bar"><div class="wcp-vol-bar-full"></div><div class="wcp-vol-bar-pointer"></div></div></div><div class="wcp-time"><span class="wcp-time-current"></span><span class="wcp-time-total"></span></div><div class="wcp-button wcp-right wcp-maximize"';
+    playerbody = '<div' + targetid + ' style="height: 100%"><div class="wcp-center" style="overflow: hidden"><canvas class="wcp-canvas wcp-center"></canvas></div><div class="wcp-surface"></div><div class="wcp-menu wcp-playlist wcp-center"><div class="wcp-menu-close"></div><div class="wcp-menu-title">Playlist Menu</div><ul class="wcp-menu-items wcp-playlist-items"></ul></div><div class="wcp-pause-anim wcp-center"><i class="wcp-anim-basic wcp-anim-icon-play"></i></div><div class="wcp-titlebar"><span class="wcp-title"></span></div><div class="wcp-toolbar"><div></div><div class="wcp-progress-bar"><div class="wcp-progress-seen"></div><div class="wcp-progress-pointer"></div><div class="wcp-progress-already-seen"></div></div><div class="wcp-button wcp-left wcp-prev" style="display: none"></div><div class="wcp-button wcp-left wcp-pause"></div><div class="wcp-button wcp-left wcp-next" style="display: none"></div><div class="wcp-button wcp-left wcp-vol-button wcp-volume-medium"></div><div class="wcp-vol-control"><div class="wcp-vol-bar"><div class="wcp-vol-bar-full"></div><div class="wcp-vol-bar-pointer"></div></div></div><div class="wcp-time"><span class="wcp-time-current"></span><span class="wcp-time-total"></span></div><div class="wcp-button wcp-right wcp-maximize"';
     if (!opts[newid].allowFullscreen) playerbody += ' style="cursor: not-allowed; color: rgba(123,123,123,0.6);"';
     playerbody += '></div><div class="wcp-button wcp-right wcp-playlist-but"></div></div><div class="wcp-status"></div><div class="wcp-notif"></div><div class="wcp-tooltip"><div class="wcp-tooltip-arrow"></div><div class="wcp-tooltip-inner">00:00</div></div></div>';
     
@@ -503,6 +503,9 @@ wjs.prototype.addPlayer = function(wcpSettings) {
             if (length > 0) {
                 if (wjsPlayer.find(".wcp-time-current").text() == "") wjsPlayer.find(".wcp-time-current").text("00:00");
                 wjsPlayer.find(".wcp-time-total").text(" / "+parseTime(wjsPlayer, length));
+                var time2 = transformCurrentTime(wjsPlayer, wjsPlayer.alreadySeen);
+                var length2 = transformLength(wjsPlayer, length);
+                wjsPlayer.find('.wcp-progress-already-seen')[0].style.width = (time2/length2*100)+'%';
             } else wjsPlayer.find(".wcp-time-total").text("");
         }
     }(newid);
@@ -565,6 +568,9 @@ wjs.prototype.addPlayer = function(wcpSettings) {
 
     result.cropTimeStart = wcpSettings.cropTimeStart || function(){return 0};
     result.cropTimeEnd = wcpSettings.cropTimeEnd || function(){return 99999999};
+    result.alreadySeen = wcpSettings.alreadySeen || 99999999;
+    if(result.cropTimeEnd() <= result.alreadySeen)
+        $('.wcp-progress-already-seen').addClass('all');
 
     result.vlc.events.once('TimeChanged',function(){
         result.volume(result.volume());
@@ -732,16 +738,24 @@ wjs.prototype.time = function(newTime) {
     if (typeof newTime === 'number') {
         if (typeof window.timeJumpHack === 'function')
             newTime = window.timeJumpHack(newTime);
-
+        if (newTime === false)
+            return;
         this.vlc.time = newTime;
         this.find(".wcp-time-current").text(parseTime(this,newTime,this.vlc.length));
-        this.find(".wcp-progress-seen")[0].style.width = (newTime/(this.vlc.length)*100)+"%";
+        var length2 = transformLength(this, this.vlc.length);
+        var time2 = transformCurrentTime(this, newTime);
+        this.find(".wcp-progress-seen")[0].style.width = (time2/length2*100)+"%";
+        if (newTime > this.alreadySeen){
+            this.alreadySeen = newTime;
+            this.find(".wcp-progress-already-seen")[0].style.width = (time2/length2*100)+"%";
+        }
         this.play();
     } else return this.vlc.time;
     return this;
 }
 
 wjs.prototype.position = function(newPosition) {
+    throw new Error('hnk unsupported operation!');
     if (typeof newPosition === 'number') {
         this.vlc.position = newPosition;
         this.find(".wcp-time-current").text(parseTime(this,this.vlc.length*newPosition,this.vlc.length,'noTransform'));
@@ -923,10 +937,12 @@ function seekDragEnded(e,wjsMulti) {
     
     if (wjsLogic) {
         p = (e.pageX - rect.left) / (rect.right - rect.left);
-        this.find(".wcp-progress-seen").css("width", (p*100)+"%");
         var actualTime = this.cropTimeStart()+ (p*transformLength(this,this.vlc.length));
         if (typeof window.timeJumpHack === 'function')
             actualTime = window.timeJumpHack(actualTime);
+        if (actualTime === false)
+            return;
+        this.find(".wcp-progress-seen").css("width", (p*100)+"%");
         this.vlc.time = actualTime;
         this.find(".wcp-time-current").text(this.find(".wcp-tooltip-inner").text());
         this.play();
@@ -1175,6 +1191,10 @@ function timePassed(t) {
         this.find(".wcp-time-current").text(parseTime(this,t,this.vlc.length));
         var position = transformCurrentTime(this,t)/transformLength(this,this.vlc.length);
         this.find(".wcp-progress-seen")[0].style.width = (position*100)+"%";
+        if (t > this.alreadySeen){
+            this.alreadySeen = t;
+            this.find(".wcp-progress-already-seen")[0].style.width = (position*100)+"%";
+        }
     }
     else if (this.find(".wcp-time-current").text() != "" && this.find(".wcp-time-total").text() == "") this.find(".wcp-time-current").text("");
 }
