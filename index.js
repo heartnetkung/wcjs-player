@@ -742,6 +742,7 @@ wjs.prototype.time = function(newTime) {
             return;
         this.vlc.time = newTime;
         this.find(".wcp-time-current").text(parseTime(this,newTime,this.vlc.length));
+        this.find(".wcp-time-total").text(' / '+parseTime(this,this.vlc.length));
         var length2 = transformLength(this, this.vlc.length);
         var time2 = transformCurrentTime(this, newTime);
         this.find(".wcp-progress-seen")[0].style.width = (time2/length2*100)+"%";
@@ -759,6 +760,7 @@ wjs.prototype.position = function(newPosition) {
     if (typeof newPosition === 'number') {
         this.vlc.position = newPosition;
         this.find(".wcp-time-current").text(parseTime(this,this.vlc.length*newPosition,this.vlc.length,'noTransform'));
+        this.find(".wcp-time-total").text(' / '+parseTime(this,this.vlc.length));
         this.find(".wcp-progress-seen")[0].style.width = (newPosition*100)+"%";
     } else return this.vlc.position;
     return this;
@@ -945,6 +947,7 @@ function seekDragEnded(e,wjsMulti) {
         this.find(".wcp-progress-seen").css("width", (p*100)+"%");
         this.vlc.time = actualTime;
         this.find(".wcp-time-current").text(this.find(".wcp-tooltip-inner").text());
+        this.find(".wcp-time-total").text(' / '+parseTime(this,this.vlc.length));
         this.play();
     }
 
