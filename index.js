@@ -32,7 +32,7 @@ var vlcs = {},
     sleepId;
     
 require('jquery-ui/sortable');
-try{var powerSaveBlocker=require('remote').require('power-save-blocker')}catch(ex){var sleep=require('computer-sleep/sleep')}
+try{var powerSaveBlocker=require('remote').require('power-save-blocker')}catch(ex){var sleep=require('./sleep')}
 
 // inject css
 if (!$("link[href='"+relbase+"/css/general.css']").length) {
